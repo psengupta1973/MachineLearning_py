@@ -9,5 +9,5 @@ Executes train() method to train the model with the data and finally use predict
 a give value of hours of study.
 The train method uses gradientDescent() method to adjust the training paramters i.e. theta
 The training and error correction loop runs for 100 iterations to find a linear relation between the give data points.
-
+<p><br>
 <b>UnivariateLinearRegressor.py</b> has a class UnivariateLinearRegressor implementing the Linear Regression Algorithm with a predict method of for a set of values (i.e. array) rather than a single value.
