@@ -1,8 +1,6 @@
 # machine_learning_py
 
-Machine learning experiments and tools are stored here.
-
-<b> Linear Regression with single variable <b>
+<b> Linear Regression with single variable </b>
 SimLinReg.py reads data from a CSV file (test_score_vs_hour_studied.csv) with 2 columns in it - test scores and hours of study.
 Loads them in x (filled with hours of study) and y (filled with test scores) data arrays.
 Checks for initial error with checkError() method.
