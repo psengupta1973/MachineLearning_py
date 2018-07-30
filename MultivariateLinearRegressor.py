@@ -82,9 +82,7 @@ class MultivariateLinearRegressor:
 
     # predict method predicts a y values for a given x value and rectified theta parameters
     def predict(self, X):
-        # add bias unit 1.0
         predicted_Y = X.dot(self.theta.transpose())
-        #print('theta: ',self.theta, ' featMean: ', self.featMean, ' featStd: ',self.featStd, ' totalCount: ', self.totalReadCount)
         return predicted_Y
 
 
