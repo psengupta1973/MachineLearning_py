@@ -12,5 +12,6 @@ The training and error correction loop runs for 100 iterations to find a linear 
 <p><br>
 <b>UnivariateLinearRegressor.py</b> has a class UnivariateLinearRegressor implementing the Linear Regression Algorithm with a predict method of for a set of values (i.e. array) rather than a single value.
 <p><br>
-<b>MultivariateLinearRegressor.py</b> has a class MultivariateLinearRegressor implementing the Linear Regression Algorithm with a predict method of for a set of features (i.e. multiple variables) rather than a single variable.The data used for this one has 2 columns or features - square feet area of houses (feature column 1), number of bedrooms (feature column 2) and 1 target column for the price of house. The sample data file is reused from Prof Andrew Ng's machine learning lessions on Coursera.
-
+<b>MultivariateLinearRegressor.py</b> has a class MultivariateLinearRegressor implementing the Linear Regression Algorithm with a predict method of for a set of features (i.e. multiple variables) rather than a single variable.The data used for this one has 2 columns or features - square feet area of houses (feature column 1), number of bedrooms (feature column 2) and 1 target column for the price of house. The sample data file is reused from Prof Andrew Ng's machine learning lessions on Coursera. The code has referred to Girish Kuniyal's implementation 
+on https://github.com/girishkuniyal/Predict-housing-prices-in-Portland.
+  
