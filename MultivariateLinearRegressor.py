@@ -44,10 +44,10 @@ class MultivariateLinearRegressor:
             self.theta = theta
         if minMethod == 'sgd':
             self.theta, costPath = self.gradientDescent(X, Y, alpha, iterCount)
-        elif minMethod == 'lin':
-            self.theta, costPath = self.linearEquation(X, Y)
+        elif minMethod == 'equ':
+            self.theta, costPath = self.normalEquation(X, Y)
         else:
-            raise ValueError("Invalid minimization method. Allowed values are 'sgd' or 'lin'.")
+            raise ValueError("Invalid minimization method. Allowed values are 'sgd' or 'equ'.")
         return self.theta, costPath
 
 
@@ -82,8 +82,8 @@ class MultivariateLinearRegressor:
         return self.theta, costPath
 
 
-    # linearEquation method adjusts theta parameters and returns a minimized theta
-    def linearEquation(self, X, Y):
+    # normalEquation method adjusts theta parameters and returns a minimized theta
+    def normalEquation(self, X, Y):
         costPath = np.array([])
         costPath = np.append(costPath, self.getCost(X, Y, None))
         self.theta = np.dot(alg.pinv(np.dot(np.transpose(X), X)), np.dot(np.transpose(X),Y))
@@ -156,8 +156,8 @@ def main():
 
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
-    theta, costPath = mlr.train(X, Y, None, alpha=0.3, iterCount=100, minMethod='sgd')      # alpha is learning rate for gradient descent
-    #theta, costPath = mlr.train(X, Y, None, minMethod='lin')
+    #theta, costPath = mlr.train(X, Y, None, alpha=0.3, iterCount=100, minMethod='sgd')      # alpha is learning rate for gradient descent
+    theta, costPath = mlr.train(X, Y, None, minMethod='equ')
     iterCount = len(costPath)
     cost = mlr.getCost(X, Y, theta)
     print("After ", iterCount, " iterations, \nCost: ", costPath[len(costPath)-1], " \nTheta: ", theta, "\n")
