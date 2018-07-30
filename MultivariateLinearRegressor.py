@@ -134,7 +134,7 @@ def main():
     yLabel  = 'Price (Y)'
     mlr = MultivariateLinearRegressor()
 
-    # test scores are loaded in y while hours of study are loaded in x
+    # LOAD House prices in Y while area, rooms and age in X
     X, Y = readData("input/area_rooms_age_prices.csv")
     plot(X, Y, xLabels, yLabel)
     X = mlr.preprocess(X)
@@ -144,7 +144,7 @@ def main():
     cost = mlr.getCost(X, Y, None)
     print("\nInitial Cost: ", cost)
 
-    # Learn from data to TRAIN the model (i.e. theta here)
+    # TRAIN the model (i.e. theta here)
     theta, costPath = mlr.train(X, Y, None, alpha, iterCount)
     plt.plot(np.linspace(1, iterCount, iterCount, endpoint=True), costPath)
     plt.title("Iteration vs Cost ")
