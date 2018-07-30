@@ -1,7 +1,8 @@
-# Given three data sets with square feet area, no. of bedrooms vs house price
+# Given three data sets with square feet area, no. of bedrooms and age in years vs house prices
 # We can run a linear regression with multiple variables to predict house pricess for a given sqft area and # of bedrooms
 
 import numpy as np
+import numpy.linalg as alg
 import matplotlib.pyplot as plt
 
 
@@ -9,26 +10,24 @@ class MultivariateLinearRegressor:
 
     def __init__(self):
         self.theta = None
-        self.alpha = 0.0
-        self.iterCount = 100
         self.featMean = None
         self.featStd = None
-        self.totalReadCount = 0
+        self.trnExampleCount = 0
 
 
     # Preprocessing: add a column (with all ones) to X and adjust values in X (feature scaling)
     def preprocess(self, X):
         m, n = X.shape
-        X = np.concatenate([np.ones((m, 1)), X], axis=1)                         # add a column as bias in X at index 0 with all ones
+        X = np.concatenate([np.ones((m, 1)), X], axis=1)                            # add a column as bias in X at index 0 with all ones
         p = X.shape[1]
-        if (self.featMean is not None) & (self.featStd is not None):             # During prediction phase
-            self.totalReadCount += m
-            for i in range(1, n+1):                                              # for each feature column
+        if (self.featMean is not None) & (self.featStd is not None):                # During prediction phase
+            self.trnExampleCount += m
+            for i in range(1, n+1):                                                 # for each feature column
                 X[:,i]   = ((X[:,i] - self.featMean[i]) / self.featStd[i]).reshape(m)      
-        else:                                                                    # First time during training
+        else:                                                                       # First time during training
             self.featMean = np.zeros(p)
             self.featStd  = np.zeros(p)
-            self.totalReadCount = m
+            self.trnExampleCount = m
             for i in range(1, n+1):
                 self.featMean[i] = np.mean(X[:,i])
                 self.featStd[i]  = np.std(X[:,i])
@@ -37,15 +36,18 @@ class MultivariateLinearRegressor:
 
 
     # the cost method is the cost function, it calculates the mean squared errors from entire dataset
-    def train(self, X, Y, theta=None, alpha=0.3, iterCount=100):
+    def train(self, X, Y, theta=None, alpha=0.3, iterCount=100, minMethod='sgd'):
         if theta is None:
             if self.theta is None:
                 self.theta = np.random.rand(1, X.shape[1])
         else:
             self.theta = theta
-        self.alpha = alpha
-        self.interCount = iterCount
-        self.theta, costPath = self.gradientDescent(X, Y)
+        if minMethod == 'sgd':
+            self.theta, costPath = self.gradientDescent(X, Y, alpha, iterCount)
+        elif minMethod == 'lin':
+            self.theta, costPath = self.linearEquation(X, Y)
+        else:
+            raise ValueError("Invalid minimization method. Allowed values are 'sgd' or 'lin'.")
         return self.theta, costPath
 
 
@@ -63,20 +65,30 @@ class MultivariateLinearRegressor:
 
 
     # gradientDescent method adjusts theta parameters and returns a minimized theta
-    def gradientDescent(self, X, Y):
+    def gradientDescent(self, X, Y, alpha, iterCount):
         costPath = np.array([])
         m = X.shape[0]
-        thetaColCount = self.theta.shape[1]
-        for c in range(0, self.iterCount):
+        thetaCols = self.theta.shape[1]
+        for c in range(0, iterCount):
             hx = X.dot(self.theta.transpose())
             temp = self.theta
-            for i in range(0, thetaColCount):
-                if i < thetaColCount-1:
-                    temp[0,i] = self.theta[0,i] - (self.alpha * (1.0/m) * ((hx - Y) * X[:, i:i+1]).sum(axis=0))
+            for i in range(0, thetaCols):
+                if i < thetaCols-1:
+                    temp[0,i] = self.theta[0,i] - (alpha * (1.0/m) * ((hx - Y) * X[:, i:i+1]).sum(axis=0))
                 else:
-                    temp[0,i] = self.theta[0,i] - (self.alpha * (1.0/m) * ((hx - Y) * X[:, -1:]).sum(axis=0))
+                    temp[0,i] = self.theta[0,i] - (alpha * (1.0/m) * ((hx - Y) * X[:, -1:]).sum(axis=0))
             self.theta = temp
             costPath = np.append(costPath, self.getCost(X, Y, None))
+        return self.theta, costPath
+
+
+    # linearEquation method adjusts theta parameters and returns a minimized theta
+    def linearEquation(self, X, Y):
+        costPath = np.array([])
+        costPath = np.append(costPath, self.getCost(X, Y, None))
+        self.theta = np.dot(alg.pinv(np.dot(np.transpose(X), X)), np.dot(np.transpose(X),Y))
+        self.theta = self.theta.reshape(1, self.theta.shape[0])
+        costPath = np.append(costPath, self.getCost(X, Y, None))
         return self.theta, costPath
 
 
@@ -128,32 +140,32 @@ def printTable(X, Y, xLabels, yLabel):
 
 ########### main method runs the steps of linear regression in sequence ###########
 def main():
-    iterCount = 100
-    alpha = 0.3          # learning rate
+
+    # LOAD house prices in Y while area, rooms and age in X
+    X, Y = readData("input/area_rooms_age_prices.csv")
     xLabels = ['Sqft Area','Bedrooms','Age in years']
     yLabel  = 'Price (Y)'
-    mlr = MultivariateLinearRegressor()
-
-    # LOAD House prices in Y while area, rooms and age in X
-    X, Y = readData("input/area_rooms_age_prices.csv")
     plot(X, Y, xLabels, yLabel)
+
+    mlr = MultivariateLinearRegressor()
     X = mlr.preprocess(X)
 
     # Check initial errors before training
-    print('\nTRAINING:\n')
     cost = mlr.getCost(X, Y, None)
     print("\nInitial Cost: ", cost)
 
     # TRAIN the model (i.e. theta here)
-    theta, costPath = mlr.train(X, Y, None, alpha, iterCount)
+    print('\nTRAINING:\n')
+    theta, costPath = mlr.train(X, Y, None, alpha=0.3, iterCount=100, minMethod='sgd')      # alpha is learning rate for gradient descent
+    #theta, costPath = mlr.train(X, Y, None, minMethod='lin')
+    iterCount = len(costPath)
+    cost = mlr.getCost(X, Y, theta)
+    print("After ", iterCount, " iterations, \nCost: ", costPath[len(costPath)-1], " \nTheta: ", theta, "\n")
     plt.plot(np.linspace(1, iterCount, iterCount, endpoint=True), costPath)
     plt.title("Iteration vs Cost ")
     plt.xlabel("# of iterations")
     plt.ylabel("theta")
     plt.show()
-
-    cost = mlr.getCost(X, Y, theta)
-    print("After ", iterCount, " iterations, \nCost: ", cost, " Theta: ", theta, "\n")
 
     # Setting up a series of values for areas and bedrooms to PREDICT corresponding prices
     print('\nPREDICTION:\n')
