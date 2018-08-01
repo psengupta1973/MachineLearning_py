@@ -14,6 +14,7 @@ class MultivariateLinearRegressor:
         self.featMean = None
         self.featStd = None
 
+
     # Preprocessing: add a column (with all ones) to X and adjust values in X (feature scaling)
     def preprocess(self, X):
         m, n = X.shape
@@ -39,12 +40,14 @@ class MultivariateLinearRegressor:
                 self.theta = np.random.rand(1, X.shape[1])
         else:
             self.theta = theta
+
         if minMethod == 'sgd':
-            self.theta, costPath = self.gradientDescent(X, Y, alpha, iterCount)
+            self.theta, costPath = self.__gradientDescent(X, Y, alpha, iterCount)
         elif minMethod == 'equ':
-            self.theta, costPath = self.normalEquation(X, Y)
+            self.theta, costPath = self.__normalEquation(X, Y)
         else:
             raise ValueError("Invalid minimization method. Allowed values are 'sgd' or 'equ'.")
+
         return self.theta, costPath
 
 
@@ -62,7 +65,7 @@ class MultivariateLinearRegressor:
 
 
     # gradientDescent method adjusts theta parameters and returns a minimized theta
-    def gradientDescent(self, X, Y, alpha, iterCount):
+    def __gradientDescent(self, X, Y, alpha, iterCount):
         costPath = np.array([])
         m = X.shape[0]
         thetaCols = self.theta.shape[1]
@@ -80,7 +83,7 @@ class MultivariateLinearRegressor:
 
 
     # normalEquation method adjusts theta parameters and returns a minimized theta
-    def normalEquation(self, X, Y):
+    def __normalEquation(self, X, Y):
         costPath = np.array([])
         costPath = np.append(costPath, self.getCost(X, Y, None))
         self.theta = np.dot(alg.pinv(np.dot(np.transpose(X), X)), np.dot(np.transpose(X),Y))
