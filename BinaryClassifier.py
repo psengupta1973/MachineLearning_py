@@ -126,13 +126,12 @@ class BinaryClassifier:
         for r in range(0, rows):
             yPred[r] = self.__hypothesis(X[r])
         yPred = yPred.round()
-        yPred = yPred.reshape(len(yPred),1)
+        yPred = yPred.reshape(X.shape[0],1)
         return yPred
 
     # validate method measures accuracy of model by predicting with training data 
     def validate(self, X, y):
         yPred = self.predict(X)
-        yPred = yPred.round().reshape(X.shape[0], 1)
         if self.verbose == True:
             print('Accuracy: ',(len(y[y== yPred])/len(y)) * 100, '%')
         return yPred
@@ -148,7 +147,6 @@ class BinaryClassifier:
         if len(self.theta) > 1:
             self.theta = self.theta.reshape(1, len(self.theta))
             print('Loading model: ',self.theta)
-        
 
 
 
@@ -180,7 +178,7 @@ def plot(X, y, xLabels, yLabel):
     plt.show()
 
 # Print house prices with specific number of columns
-def printTable(X, y, xLabels, yLabel):
+def printData(X, y, xLabels, yLabel):
     rows, cols = X.shape
     if (rows != y.shape[0]) :
         return
@@ -206,6 +204,7 @@ def sampleData4Prediction():
     return X
 
 
+
 ########### main method runs the steps of training & prediction ###########
 def main():
 
@@ -225,7 +224,7 @@ def main():
     # VALIDATE model with training data
     print('\nVAIDATION:\n')
     yPred = classifier.validate(X, y)
-    printTable(X, yPred, xLabels, yLabel)
+    printData(X, yPred, xLabels, yLabel)
     plot(X, yPred, xLabels, yLabel)
     writeOutput(X, yPred, 'output/house_categories_validation.csv')
     
@@ -233,7 +232,7 @@ def main():
     print('\nPREDICTION:\n')
     X = sampleData4Prediction()
     yPred = classifier.predict(X)
-    printTable(X, yPred, xLabels, yLabel)
+    printData(X, yPred, xLabels, yLabel)
     plot(X, yPred, xLabels, yLabel)
     writeOutput(X, yPred, 'output/house_categories_prediction.csv')
 
