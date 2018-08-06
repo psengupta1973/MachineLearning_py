@@ -4,7 +4,6 @@
 import numpy as np
 import numpy.linalg as alg
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
 
 
 class BinaryClassifier:
