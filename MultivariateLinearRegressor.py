@@ -93,7 +93,6 @@ class MultivariateLinearRegressor:
     # validate method measures accuracy of model by predicting with training data 
     def validate(self, X, y):
         yPred = self.predict(X)
-        yPred = yPred.round().reshape(X.shape[0], 1)
         print('\nMean Difference (y - yPred): ',(np.mean(y)-np.mean(yPred)))
         return yPred
 
@@ -104,15 +103,15 @@ def readData(fileName, delim=','):
     data = np.genfromtxt(fileName, delimiter=delim)
     n = data.shape[1]
     X = data[:, 0:n-1]
-    Y = data[:,-1:]
-    return X, Y
+    y = data[:,-1:]
+    return X, y
 
 def plot(X, Y, xLabels, yLabel):
     # Plotting example dataset
-    plt.figure(figsize=(15,4), dpi=100)
     m, n = X.shape
-    if n != len(xLabels):
+    if (m != Y.shape[0]) :
         return
+    plt.figure(figsize=(15,4), dpi=100)
     for i in range(0, n):
         plt.subplot(1, n, i+1)
         plt.scatter(X[:,i], Y)
@@ -121,7 +120,7 @@ def plot(X, Y, xLabels, yLabel):
     plt.show()
 
 # Print house prices with specific number of columns
-def printTable(X, Y, xLabels, yLabel):
+def printData(X, Y, xLabels, yLabel):
     m, n = X.shape
     if (m != Y.shape[0]) :
         return
@@ -153,18 +152,18 @@ def main():
         if (sys.argv[1] == 'sgd'):
             method = 'sgd'
 
-    # LOAD house prices in Y while area, rooms and age in X
-    X, Y = readData("input/area_rooms_age_prices.csv")
+    # LOAD house prices in y while area, rooms and age in X
+    X, y = readData("input/area_rooms_age_prices.csv")
     xLabels = ['Sqft Area','Bedrooms','Age in years']
-    yLabel  = 'Price (Y)'
-    plot(X, Y, xLabels, yLabel)
+    yLabel  = 'Price (y)'
+    plot(X, y, xLabels, yLabel)
 
     mlr = MultivariateLinearRegressor()
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
     iterCount = 100
     Xproc = mlr.preprocess(X)
-    theta, costPath = mlr.train(Xproc, Y, None, alpha=0.3, iterCount=iterCount, minMethod=method)      # alpha is learning rate for gradient descent
+    theta, costPath = mlr.train(Xproc, y, None, alpha=0.3, iterCount=iterCount, minMethod=method)      # alpha is learning rate for gradient descent
     costSteps = len(costPath)
     if costSteps > 1:
         print('After ', iterCount, ' iterations, \nCost reduction: ', costPath[0], ' --> ', costPath[costSteps-1],  '\nTheta: ', theta, '\n')
@@ -176,16 +175,17 @@ def main():
 
     # VALIDATE model with training data
     print('\nVAIDATION:\n')
-    yPred = mlr.validate(Xproc, Y)
-    printTable(X, yPred, xLabels, yLabel)
+    yPred = mlr.validate(Xproc, y)
+    printData(X, yPred, xLabels, yLabel)
     plot(X, yPred, xLabels, yLabel)
 
     # PREDICT using trained model with sample data
     print('\nPREDICTION:\n')
     X = sampleData4Prediction()
-    Y = mlr.predict(Xproc)
-    printTable(X, Y, xLabels, yLabel)
-    plot(X, Y, xLabels, yLabel)
+    Xproc = mlr.preprocess(X) 
+    y = mlr.predict(Xproc)
+    printData(X, y, xLabels, yLabel)
+    plot(X, y, xLabels, yLabel)
 
 
 if True:
