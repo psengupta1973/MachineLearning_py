@@ -211,9 +211,12 @@ def main():
     X, y = readInput("input/area_rooms_age_categories.csv")
     xLabels = ['Area(sqft)','Bedrooms','Age(years)', 'Prices']
     yLabel  = 'Categories (y)'
-    plot(X, y, xLabels, yLabel)
+    #plot(X, y, xLabels, yLabel)
+    plt.scatter(X[:,2],X[:,3], label='Training data')
+    plt.legend()
+    plt.show()
 
-    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
+    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=False)
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
     classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
@@ -224,15 +227,22 @@ def main():
     print('\nVAIDATION:\n')
     yPred = classifier.validate(X, y)
     printData(X, yPred, xLabels, yLabel)
-    plot(X, yPred, xLabels, yLabel)
+    #plot(X, yPred, xLabels, yLabel)
     writeOutput(X, yPred, 'output/house_categories_validation.csv')
     
+    # Plot after training
+    plt.figure(figsize=(10, 6))
+    plt.scatter(X[y.ravel() == 0][:, 2], X[y.ravel() == 0][:, 3], color='b', label='Standard')
+    plt.scatter(X[y.ravel() == 1][:, 2], X[y.ravel() == 1][:, 3], color='r', label='Premium')
+    plt.legend()
+    plt.show()
+
     # PREDICT with trained model using sample data
     print('\nPREDICTION:\n')
     X = sampleData4Prediction()
     yPred = classifier.predict(X)
     printData(X, yPred, xLabels, yLabel)
-    plot(X, yPred, xLabels, yLabel)
+    #plot(X, yPred, xLabels, yLabel)
     writeOutput(X, yPred, 'output/house_categories_prediction.csv')
 
 if True:
