@@ -217,7 +217,7 @@ def main():
     plt.legend()
     plt.show()
 
-    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
+    classifier = BinaryClassifier(numOfIterations=200, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
     classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
