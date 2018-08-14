@@ -16,12 +16,12 @@ class BinaryClassifier:
         self.scalingNeeded = scalingNeeded
         self.verbose = verbose
 
-    # add a column (with all ones) to X (at 0th index)
+    # add a column (with all ones) as the BIAS to X (at 0th index)
     def __addBias(self, X):
         m = X.shape[0]
         return np.concatenate([np.ones((m, 1)), X], axis=1)                            # add a column as bias in X at index 0 with all ones
 
-    # the cost method is the cost function, it calculates the mean squared errors from entire dataset
+    # the COST method is the cost function, it calculates the mean squared errors from entire dataset
     def __cost(self, X, y):
         rows = X.shape[0]
         if self.theta is None:
@@ -36,7 +36,7 @@ class BinaryClassifier:
             cost += loss[r]
         return cost
 
-    # Hypothesis function to calculate hx for a row
+    # HYPOTHESIS function to calculate hx for a row
     def __hypothesis(self, Xrow):
         cols = len(Xrow)
         z, hx = 0.0, 0.0
@@ -45,14 +45,14 @@ class BinaryClassifier:
         hx = self.__sigmoid(z)
         return hx
 
-    # Loss function
+    # LOSS function
     def __loss(self, hx, y):
         np.seterr(divide='ignore')
         np.seterr(invalid='ignore')
         loss = (-y * np.log(hx) - (1-y) * np.log(1-hx)).mean()
         return loss
 
-    # gradientDescent method adjusts theta parameters and returns a minimized theta
+    # GRADIENTDESCENT (loops) method adjusts theta parameters and returns a minimized theta
     def __gradientDescent(self, X, y):
         costPath = self.__cost(X, y)
         rows, cols = X.shape
@@ -67,18 +67,19 @@ class BinaryClassifier:
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
 
-    # gradientDescent method adjusts theta parameters and returns a minimized theta
+    # GRADIENTDESCENT (vectorized) method adjusts theta parameters and returns a minimized theta
     def x__gradientDescent(self, X, y):
         costPath = self.__cost(X, y)
         rows = X.shape[0]
         for c in range(0, self.epoch):
-            hx = self.__sigmoid(np.dot(X, np.transpose(self.theta)))
+            z = np.dot(X, np.transpose(self.theta))
+            hx = self.__sigmoid(z)
             derivative = 1/rows * np.dot(X.T, (hx - y))
             self.theta = self.theta - (self.alpha * derivative)
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
 
-    # Logistic / Sigmoid function
+    # Logistic / SIGMOID function
     def __sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
@@ -93,7 +94,7 @@ class BinaryClassifier:
             X[:,i]   = ((X[:,i] - featMean[i]) / featStd[i]).reshape(m)
         return X
 
-    # the cost method is the cost function, it calculates the mean squared errors from entire dataset
+    # the TRAIN method goes through the training dataset and train the model and reduce cost
     def train(self, X, y):
         if self.biasNeeded:
             X = self.__addBias(X)
@@ -114,7 +115,7 @@ class BinaryClassifier:
             plt.show()
         return self.theta
 
-    # predict method predicts a y values (0 - Standard or 1 - Premium) for a given x value & minimizing theta
+    # PREDICT method predicts a y values (0 - Standard or 1 - Premium) for a given x value & minimizing theta
     def predict(self, X):
         if self.biasNeeded:
             X = self.__addBias(X)
@@ -128,7 +129,7 @@ class BinaryClassifier:
         yPred = yPred.reshape(X.shape[0],1)
         return yPred
 
-    # validate method measures accuracy of model by predicting with training data 
+    # VALIDATE method measures accuracy of model by predicting with training data 
     def validate(self, X, y):
         yPred = self.predict(X)
         if self.verbose == True:
@@ -216,7 +217,7 @@ def main():
     plt.legend()
     plt.show()
 
-    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=False)
+    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
     classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
