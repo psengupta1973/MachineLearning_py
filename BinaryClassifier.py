@@ -50,10 +50,6 @@ class BinaryClassifier:
         #np.seterr(invalid='ignore')
         _1_hx = (1 - hx) + (10**-10)                                            # avoid zeros from going to log()
         loss = (-y * np.log(hx) - (1-y) * np.log(_1_hx)).mean()
-        if hx == 0.0:
-            print("hx")
-        if _1_hx == 0.0:
-            print("_1_hx")
         return loss
 
     # GRADIENTDESCENT (loops) method adjusts theta parameters and returns a minimized theta
