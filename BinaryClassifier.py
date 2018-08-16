@@ -2,7 +2,6 @@
 # based on input features e.g. sqft area, bedrooms, age in years and price
 
 import numpy as np
-import numpy.linalg as alg
 import matplotlib.pyplot as plt
 
 
