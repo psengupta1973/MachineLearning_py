@@ -46,9 +46,14 @@ class BinaryClassifier:
 
     # LOSS function
     def __loss(self, hx, y):
-        np.seterr(divide='ignore')
-        np.seterr(invalid='ignore')
-        loss = (-y * np.log(hx) - (1-y) * np.log(1-hx)).mean()
+        #np.seterr(divide='ignore')
+        #np.seterr(invalid='ignore')
+        _1_hx = (1 - hx) + (10**-10)                                            # avoid zeros from going to log()
+        loss = (-y * np.log(hx) - (1-y) * np.log(_1_hx)).mean()
+        if hx == 0.0:
+            print("hx")
+        if _1_hx == 0.0:
+            print("_1_hx")
         return loss
 
     # GRADIENTDESCENT (loops) method adjusts theta parameters and returns a minimized theta
@@ -102,7 +107,7 @@ class BinaryClassifier:
         if self.theta is None:
             self.theta = np.random.rand(1, X.shape[1])
         self.theta, costPath = self.__gradientDescent(X, y)
-        costPath = costPath[~np.isnan(costPath)]                                                 # remove nan values if any
+        #costPath = costPath[~np.isnan(costPath)]                                                 # remove nan values if any
         costSteps = len(costPath)
         if (costSteps > 1) & self.verbose == True:
             # VISUALIZE improvement of model after training
@@ -196,9 +201,9 @@ def printData(X, y, xLabels, yLabel):
 # Sample data for Prediction
 def sampleData4Prediction():
     areas    = np.arange(1950.00, 1000.00, -100.00)[0:5].reshape(5,1)
-    bedrooms = np.arange(6, 1, -1)[0:5].reshape(5,1)
-    years    = np.arange(7, 1, -1)[0:5].reshape(5,1)
-    prices   = np.arange(280000, 220000, -10000)[0:5].reshape(5,1)
+    bedrooms = np.arange(6.0, 1.0, -1.0)[0:5].reshape(5,1)
+    years    = np.arange(7.0, 1.0, -1.0)[0:5].reshape(5,1)
+    prices   = np.arange(280000.00, 220000.00, -10000.00)[0:5].reshape(5,1)
     X = np.hstack([areas, bedrooms, years, prices])
     return X
 
@@ -216,7 +221,7 @@ def main():
     plt.legend()
     plt.show()
 
-    classifier = BinaryClassifier(numOfIterations=200, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
+    classifier = BinaryClassifier(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
     # TRAIN the model (i.e. theta here)
     print('\nTRAINING:\n')
     classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
