@@ -14,10 +14,7 @@ class BinaryClassifier:
         X, y = self.readInput("input/area_rooms_age_categories.csv")
         xLabels = ['Area(sqft)','Bedrooms','Age(years)', 'Prices']
         yLabel  = 'Categories (y)'
-        #plot(X, y, xLabels, yLabel)
-        plt.scatter(X[:,2],X[:,3], label='Training data')
-        plt.legend()
-        plt.show()
+        self.plot(X, y, xLabels, yLabel, ['Standard', 'Premium'])
 
         classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, scalingNeeded=True, biasNeeded=True, verbose=True)
         # TRAIN the model (i.e. theta here)
@@ -30,22 +27,15 @@ class BinaryClassifier:
         print('\nVAIDATION:\n')
         yPred = classifier.validate(X, y)
         self.printData(X, yPred, xLabels, yLabel)
-        #plot(X, yPred, xLabels, yLabel)
+        self.plot(X, yPred, xLabels, yLabel, ['Standard', 'Premium'])
         self.writeOutput(X, yPred, 'output/house_categories_validation.csv')
-        
-        # Plot after training
-        plt.figure(figsize=(10, 6))
-        plt.scatter(X[y.ravel() == 0][:, 2], X[y.ravel() == 0][:, 3], color='b', label='Standard')
-        plt.scatter(X[y.ravel() == 1][:, 2], X[y.ravel() == 1][:, 3], color='r', label='Premium')
-        plt.legend()
-        plt.show()
 
         # PREDICT with trained model using sample data
         print('\nPREDICTION:\n')
         X = self.sampleData4Prediction()
         yPred = classifier.predict(X)
         self.printData(X, yPred, xLabels, yLabel)
-        #plot(X, yPred, xLabels, yLabel)
+        self.plot(X, yPred, xLabels, yLabel, ['Standard', 'Premium'])
         self.writeOutput(X, yPred, 'output/house_categories_prediction.csv')
 
     # readData method loads all columns from left to right (except the last) in X and the last column in y
@@ -61,36 +51,45 @@ class BinaryClassifier:
         np.savetxt(fileName, data, fmt='%.d', delimiter=delim)
         return
 
-    def plot(self, X, y, xLabels, yLabel):
-        # Plotting example dataset
+    # Plotting dataset
+    def plot(self, X, y, xLabels, yLabel, classLabels):
         plt.figure(figsize=(15,4), dpi=100)
+        y = y.ravel()
         rows, cols = X.shape
         if cols != len(xLabels):
             return
-        for c in range(0, cols):
+        for c in range(0, cols-1):
             plt.subplot(1, cols, c+1)
-            plt.scatter(X[:,c], y)
-            plt.plot(X[:,c], y)
+            plt.scatter(X[y == 0][:, c], X[y == 0][:, c+1], color='b', label=classLabels[0])
+            plt.scatter(X[y == 1][:, c], X[y == 1][:, c+1], color='r', label=classLabels[1])
             plt.xlabel(xLabels[c])
-            plt.ylabel(yLabel)
+            plt.ylabel(xLabels[c+1])
+        plt.legend()
         plt.show()
 
     # Print house prices with specific number of columns
-    def printData(self, X, y, xLabels, yLabel):
+    def printData(self, X, y, xLabels, yLabel, delim='\t', fileName=None):
         rows, cols = X.shape
         if (rows != y.shape[0]) :
             return
-        header = '\n'
-        for c in range(0, cols):
-            header += xLabels[c] + '    '
-        header += yLabel
-        print(header)
+        headLine = ''
+        colheads = len(xLabels)
+        for c in range(0, colheads):
+            headLine += xLabels[c] + delim
+        headLine += yLabel +str('\n')
+        bodyLine = ''
         for r in range(0, rows):
-            bodyLine = ''
             for c in range(0, cols):
-                bodyLine += str(X[r, c]) + '        '
+                bodyLine += str(X[r, c]) + delim
             bodyLine += str(y[r,0])
+            bodyLine += str('\n')
+        if fileName is None:
+            print(headLine)
             print (bodyLine)
+        else:
+            with open(fileName, "w") as f:
+                f.write(headLine)
+                f.write(bodyLine)
 
     # Sample data for Prediction
     def sampleData4Prediction(self):
