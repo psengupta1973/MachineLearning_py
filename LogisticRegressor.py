@@ -6,13 +6,14 @@ import matplotlib.pyplot as plt
 
 class LogisticRegressor:
 
-    def __init__(self, numOfIterations=100, learningRate=0.3, biasNeeded=False, scalingNeeded=False, verbose=False):
+    def __init__(self, numOfIterations=100, learningRate=0.3, regularizer=100, biasNeeded=False, scalingNeeded=False, verbose=False):
         self.epoch = numOfIterations
         self.theta = None
         self.biasNeeded = biasNeeded
         self.alpha = learningRate
         self.scalingNeeded = scalingNeeded
         self.verbose = verbose
+        self._lambda = regularizer
 
     # add a column (with all ones) as the BIAS to X (at 0th index)
     def __addBias(self, X):
@@ -21,10 +22,10 @@ class LogisticRegressor:
 
     # the COST method is the cost function, it calculates the mean squared errors from entire dataset
     def __cost(self, X, y):
+        np.seterr(over='raise')
         rows = X.shape[0]
         if self.theta is None:
             self.theta = np.random.rand(1, X.shape[1])
-        np.seterr(over='raise')
         hx   = np.zeros(rows)
         loss = np.zeros(rows)
         cost = 0.0
@@ -32,37 +33,51 @@ class LogisticRegressor:
             hx[r] = self.__hypothesis(X[r])
             loss[r] = self.__loss(hx[r], y[r, 0])
             cost += loss[r]
+        cost = (-1/rows) * cost
+        cost += self.__regularizeCost(self.theta, rows)                 # regularize theta
         return cost
 
     # HYPOTHESIS function to calculate hx for a row
     def __hypothesis(self, Xrow):
         cols = len(Xrow)
-        z, hx = 0.0, 0.0
+        z = 0.0
         for c in range(0, cols):
             z += (self.theta[0, c] * Xrow[c])
         hx = self.__sigmoid(z)
         return hx
 
+    # Logistic / SIGMOID function
+    def __sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+
     # LOSS function
     def __loss(self, hx, y):
         #np.seterr(divide='ignore')
         #np.seterr(invalid='ignore')
-        _1_hx = (1 - hx) + (10**-10)                                            # avoid zeros from going to log()
-        loss = (-y * np.log(hx) - (1-y) * np.log(_1_hx)).mean()
+        hx += (10**-10)
+        _1_hx = (1 - hx)
+        _1_hx += (10**-10)                                              # avoid zeros from going to log()
+        loss = (y * np.log(hx) + (1-y) * np.log(_1_hx))
         return loss
+
+    # regularize theta to reduce overfitting
+    def __regularizeCost(self, theta, rows):
+        sum = np.sum(np.square(theta))
+        return (self._lambda/(2*rows)) * sum
 
     # GRADIENTDESCENT (loops) method adjusts theta parameters and returns a minimized theta
     def __gradientDescent(self, X, y):
         costPath = self.__cost(X, y)
         rows, cols = X.shape
-        hx, lossFactor = 0.0, 0.0
+        hx, derivative = 0.0, 0.0
         for i in range(0, self.epoch):
             for c in range(0, cols):
                 for r in range(0, rows):
                     hx = self.__hypothesis(X[r])
-                    lossFactor += (hx - y[r,0]) * X[r,c]
-                derivative = lossFactor / rows
-                self.theta[0, c] -= (self.alpha * derivative)
+                    derivative += (hx - y[r,0]) * X[r,c]
+                derivative = derivative / rows
+                derivative += (self._lambda/rows) * self.theta[0,c]     # regularize
+                self.theta[0, c] -= self.alpha * derivative
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
 
@@ -77,10 +92,6 @@ class LogisticRegressor:
             self.theta = self.theta - (self.alpha * derivative)
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
-
-    # Logistic / SIGMOID function
-    def __sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
 
     # Preprocessing: adjust values in X (feature scaling)
     def __scaleFeatues(self, X):
