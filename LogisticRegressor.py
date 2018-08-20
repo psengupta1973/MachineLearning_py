@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 class LogisticRegressor:
 
-    def __init__(self, numOfIterations=100, learningRate=0.3, regularizer=100, biasNeeded=False, scalingNeeded=False, verbose=False):
+    def __init__(self, numOfIterations=100, learningRate=0.3, regularizer=1, biasNeeded=False, scalingNeeded=False, verbose=False):
         self.epoch = numOfIterations
         self.theta = None
         self.biasNeeded = biasNeeded
@@ -62,7 +62,8 @@ class LogisticRegressor:
 
     # regularize theta to reduce overfitting
     def __regularizeCost(self, theta, rows):
-        sum = np.sum(np.square(theta))
+        thetaExcept0 = theta[0, 1:]
+        sum = np.sum(np.square(thetaExcept0))
         return (self._lambda/(2*rows)) * sum
 
     # GRADIENTDESCENT (loops) method adjusts theta parameters and returns a minimized theta
@@ -76,7 +77,8 @@ class LogisticRegressor:
                     hx = self.__hypothesis(X[r])
                     derivative += (hx - y[r,0]) * X[r,c]
                 derivative = derivative / rows
-                derivative += (self._lambda/rows) * self.theta[0,c]     # regularize
+                if c > 0:
+                    derivative += (self._lambda/rows) * self.theta[0,c]     # regularize except theta-0
                 self.theta[0, c] -= self.alpha * derivative
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
