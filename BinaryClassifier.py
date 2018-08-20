@@ -16,7 +16,7 @@ class BinaryClassifier:
         yLabel  = 'Categories (y)'
         self.plot(X, y, xLabels, yLabel, ['Standard', 'Premium'])
 
-        classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, regularizer=100, scalingNeeded=True, biasNeeded=True, verbose=True)
+        classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, regularizer=1, scalingNeeded=True, biasNeeded=True, verbose=True)
         # TRAIN the model (i.e. theta here)
         print('\nTRAINING:\n')
         classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
