@@ -58,12 +58,14 @@ class BinaryClassifier:
         rows, cols = X.shape
         if cols != len(xLabels):
             return
-        for c in range(0, cols-1):
+        for c in range(0, cols):
             plt.subplot(1, cols, c+1)
-            plt.scatter(X[y == 0][:, c], X[y == 0][:, c+1], color='b', label=classLabels[0])
-            plt.scatter(X[y == 1][:, c], X[y == 1][:, c+1], color='r', label=classLabels[1])
-            plt.xlabel(xLabels[c])
-            plt.ylabel(xLabels[c+1])
+            Xy0 = X[y == 0][:, c]
+            Xy1 = X[y == 1][:, c]
+            plt.scatter(range(1, Xy0.shape[0]+1), Xy0, color='b', label=classLabels[0])
+            plt.scatter(range(1, Xy1.shape[0]+1), Xy1, color='r', label=classLabels[1])
+            plt.xlabel('House #')
+            plt.ylabel(xLabels[c])
         plt.legend()
         plt.show()
 
