@@ -16,9 +16,11 @@ class TitanicBinaryClassifier:
         # LOAD data
         xLabels = ['Pclass','Sex','Age','SibSp','Parch','Fare','Embarked']
         yLabel  = 'Survived'
+        classTags = ['Not Survived', 'Survived']
         data = pd.read_csv('input/titanic_train.csv')
+
         X, y = self.preprocessTitanicData(data, xLabels, yLabel)
-        self.plot(X, y, xLabels, yLabel, ['Not Survived', 'Survived'])
+        self.plot(X, y, xLabels, yLabel, classTags)
 
         classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, regularizer=100, scalingNeeded=True, biasNeeded=True, verbose=True)
         # TRAIN the model (i.e. theta here)
@@ -31,18 +33,20 @@ class TitanicBinaryClassifier:
         print('\nVAIDATION:\n')
         yPred = classifier.validate(X, y)
         self.writeOutput(X, yPred, 'output/titanic_validation.csv')
-        # Plot after training
-        self.plot(X, yPred, xLabels, yLabel, ['Not Survived', 'Survived'])
+        # Plot after validation
+        self.plot(X, y, xLabels, yLabel, classTags)
 
         # PREDICT with trained model using sample data
         print('\nPREDICTION:\n')
         data = pd.read_csv("input/titanic_test.csv")
         X, y = self.preprocessTitanicData(data, xLabels, yLabel, training=False)
         yPred = classifier.predict(X)
-        self.plot(X, yPred, xLabels, yLabel, ['Not Survived', 'Survived'])
-        #printData(X, yPred, xLabels, yLabel)
+        # Plot after prediction
         indexField = data['PassengerId'].values.reshape(data.shape[0], 1)
-        self.writeOutput(indexField, yPred, 'output/titanic_prediction.csv', colHeaders=['PassengerId', 'Survived'])
+        self.plot(X, yPred, xLabels, yLabel, classTags)
+        #printData(X, yPred, xLabels, yLabel)
+        
+        self.writeOutput(indexField, yPred, 'output/titanic_prediction.csv', colHeaders=classTags)
 
 
     def writeOutput(self, X, y, fileName, delim=',', colHeaders=None):
@@ -86,12 +90,14 @@ class TitanicBinaryClassifier:
         rows, cols = X.shape
         if cols != len(xLabels):
             return
-        for c in range(0, cols-1):
+        for c in range(0, cols):
             plt.subplot(1, cols, c+1)
-            plt.scatter(X[y == 0][:, c], X[y == 0][:, c+1], color='b', label=classLabels[0])
-            plt.scatter(X[y == 1][:, c], X[y == 1][:, c+1], color='r', label=classLabels[1])
-            plt.xlabel(xLabels[c])
-            plt.ylabel(xLabels[c+1])
+            Xy0 = X[y == 0][:, c]
+            Xy1 = X[y == 1][:, c]
+            plt.scatter(range(1, Xy0.shape[0]+1), Xy0, color='r', label=classLabels[0])
+            plt.scatter(range(1, Xy1.shape[0]+1), Xy1, color='b', label=classLabels[1])
+            plt.xlabel('Passenger #')
+            plt.ylabel(xLabels[c])
         plt.legend()
         plt.show()
 
