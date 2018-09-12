@@ -12,9 +12,9 @@ from LogisticRegressor import LogisticRegressor
 class TitanicBinaryClassifier:
 
     ########### main method runs the steps of training & prediction ###########
-    def __init__(self):
+    def __init__(self, epoch=100, alpha=0.3, reg=10):
         # LOAD data
-        xLabels = ['Pclass','Sex','Age','SibSp','Parch','Fare','Embarked']
+        xLabels = ['Pclass','Sex','Age','SibSp','Parch','Ticket','Fare','Embarked']
         yLabel  = 'Survived'
         classTags = ['Not Survived', 'Survived']
         data = pd.read_csv('input/titanic_train.csv')
@@ -22,7 +22,7 @@ class TitanicBinaryClassifier:
         X, y = self.preprocessTitanicData(data, xLabels, yLabel)
         self.plot(X, y, xLabels, yLabel, classTags)
 
-        classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, regularizer=100, scalingNeeded=True, biasNeeded=True, verbose=True)
+        classifier = LogisticRegressor(numOfIterations=epoch, learningRate=alpha, regularizer=reg, scalingNeeded=True, biasNeeded=True, verbose=True)
         # TRAIN the model (i.e. theta here)
         print('\nTRAINING:\n')
         classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
@@ -46,7 +46,7 @@ class TitanicBinaryClassifier:
         self.plot(X, yPred, xLabels, yLabel, classTags)
         #printData(X, yPred, xLabels, yLabel)
         
-        self.writeOutput(indexField, yPred, 'output/titanic_prediction.csv', colHeaders=classTags)
+        self.writeOutput(indexField, yPred, 'output/titanic_prediction.csv', colHeaders=['PassengerId', 'Survived'])
 
 
     def writeOutput(self, X, y, fileName, delim=',', colHeaders=None):
@@ -112,9 +112,11 @@ class TitanicBinaryClassifier:
         data['Embarked'] = data['Embarked'].map({'C':1, 'Q':2, 'S':3})
         meanAge = np.mean(data['Age'])
         data['Age'] = data['Age'].fillna(meanAge)
+        data['Ticket'] = pd.to_numeric(data['Ticket'], errors='coerce')
+        data['Ticket'] = data['Ticket'].fillna(0.0)
         X = data.values.astype('int64')
         return X, y
 
 
 if True:
-    TitanicBinaryClassifier()
+    TitanicBinaryClassifier(epoch=100, alpha=0.1, reg=1)
