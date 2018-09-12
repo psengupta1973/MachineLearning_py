@@ -8,7 +8,7 @@ from LogisticRegressor import LogisticRegressor
 class BinaryClassifier:
 
     ########### init method runs the steps of training & prediction ###########
-    def __init__(self):
+    def __init__(self, epoch=100, alpha=0.3, reg=1):
 
         # LOAD house prices in y while area, rooms and age in X
         X, y = self.readInput("input/area_rooms_age_categories.csv")
@@ -16,10 +16,10 @@ class BinaryClassifier:
         yLabel  = 'Categories (y)'
         self.plot(X, y, xLabels, yLabel, ['Standard', 'Premium'])
 
-        classifier = LogisticRegressor(numOfIterations=100, learningRate=0.3, regularizer=1, scalingNeeded=True, biasNeeded=True, verbose=True)
+        classifier = LogisticRegressor(numOfIterations=epoch, learningRate=alpha, regularizer=reg, scalingNeeded=True, biasNeeded=True, verbose=True)
         # TRAIN the model (i.e. theta here)
         print('\nTRAINING:\n')
-        classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
+        theta = classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
         classifier.saveModel('model/bin_classification.model')
 
         classifier.loadModel('model/bin_classification.model')
@@ -64,6 +64,8 @@ class BinaryClassifier:
             Xy1 = X[y == 1][:, c]
             plt.scatter(range(1, Xy0.shape[0]+1), Xy0, color='b', label=classLabels[0])
             plt.scatter(range(1, Xy1.shape[0]+1), Xy1, color='r', label=classLabels[1])
+            #plt.plot(range(1, Xy0.shape[0]+1), Xy0, 'g--')
+            #plt.plot(range(1, Xy1.shape[0]+1), Xy1, 'b--')
             plt.xlabel('House #')
             plt.ylabel(xLabels[c])
         plt.legend()
@@ -76,8 +78,8 @@ class BinaryClassifier:
             return
         headLine = ''
         colheads = len(xLabels)
-        for c in range(0, colheads):
-            headLine += xLabels[c] + delim
+        for xLabel in xLabels:
+            headLine += xLabel + delim
         headLine += yLabel +str('\n')
         bodyLine = ''
         for r in range(0, rows):
