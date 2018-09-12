@@ -70,16 +70,18 @@ class LogisticRegressor:
     def __gradientDescent(self, X, y):
         costPath = self.__cost(X, y)
         rows, cols = X.shape
-        hx, derivative = 0.0, 0.0
+        
         for i in range(0, self.epoch):
+            hx, derivative = 0.0, 0.0
             for c in range(0, cols):
+                regularizer = 0.0
                 for r in range(0, rows):
                     hx = self.__hypothesis(X[r])
                     derivative += (hx - y[r,0]) * X[r,c]
                 derivative = derivative / rows
                 if c > 0:
-                    derivative += (self._lambda/rows) * self.theta[0,c]     # regularize except theta-0
-                self.theta[0, c] -= self.alpha * derivative
+                    regularizer = (self._lambda/rows) * self.theta[0,c]     # regularize except theta-0
+                self.theta[0, c] -= self.alpha * (derivative + regularizer)
             costPath = np.append(costPath, self.__cost(X, y))
         return self.theta, costPath
 
