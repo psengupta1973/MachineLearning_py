@@ -125,7 +125,7 @@ class LogisticRegressor:
             plt.plot(np.linspace(1, costSteps, costSteps, endpoint=True), costPath)
             plt.title("Iteration vs Cost ")
             plt.xlabel("# of iterations")
-            plt.ylabel("theta")
+            plt.ylabel("Cost")
             plt.show()
         return self.theta
 
@@ -152,13 +152,13 @@ class LogisticRegressor:
 
     # saveModel method saves the model(i.e. theta) in a file for later use
     def saveModel(self, fileName):
-        print('Saving model: ',self.theta, ' ', self.theta.shape)
+        #print('Saving model: ',self.theta, ' ', self.theta.shape)
         np.savetxt(fileName, self.theta, fmt='%.8e', delimiter=',')
 
     # loadModel method loads the model(i.e. theta) to be reused 
     def loadModel(self, fileName):
-        self.theta = np.genfromtxt(fileName, delimiter=',')
-        if len(self.theta) > 1:
+        self.theta = np.genfromtxt(fileName, delimiter=',', defaultfmt='%.8e')
+        if len(self.theta.shape) == 1:
             self.theta = self.theta.reshape(1, len(self.theta))
-            print('Loading model: ',self.theta)
+        print('Loading model: ',self.theta, ' ', self.theta.shape)
 
