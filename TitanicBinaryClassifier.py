@@ -20,30 +20,28 @@ class TitanicBinaryClassifier:
         data = pd.read_csv('input/titanic_train.csv')
 
         X, y = self.preprocessTitanicData(data, xLabels, yLabel)
-        self.plot(X, y, xLabels, yLabel, classTags)
+        #self.plot(X, y, xLabels, yLabel, classTags)
 
         classifier = LogisticRegressor(numOfIterations=epoch, learningRate=alpha, regularizer=reg, scalingNeeded=True, biasNeeded=True, verbose=True)
-        # TRAIN the model (i.e. theta here)
-        print('\nTRAINING:\n')
+        
+        print('\nTRAINING:\n')                                                 # TRAIN the model (i.e. theta here)
         classifier.train(X, y)                                                 # alpha is learning rate for gradient descent
         classifier.saveModel('model/titanic_classifier.model')
 
         classifier.loadModel('model/titanic_classifier.model')
-        # VALIDATE model with training data
         print('\nVAIDATION:\n')
-        yPred = classifier.validate(X, y)
+        yPred = classifier.validate(X, y)                                       # VALIDATE model with training data
         self.writeOutput(X, yPred, 'output/titanic_validation.csv')
-        # Plot after validation
-        self.plot(X, y, xLabels, yLabel, classTags)
+        
+        #self.plot(X, y, xLabels, yLabel, classTags)                             # Plot after validation
 
-        # PREDICT with trained model using sample data
-        print('\nPREDICTION:\n')
+        print('\nPREDICTION:\n')                                                # PREDICT with trained model using test data
         data = pd.read_csv("input/titanic_test.csv")
         X, y = self.preprocessTitanicData(data, xLabels, yLabel, training=False)
         yPred = classifier.predict(X)
-        # Plot after prediction
+        
         indexField = data['PassengerId'].values.reshape(data.shape[0], 1)
-        self.plot(X, yPred, xLabels, yLabel, classTags)
+        #self.plot(X, yPred, xLabels, yLabel, classTags)                         # Plot after prediction
         #printData(X, yPred, xLabels, yLabel)
         
         self.writeOutput(indexField, yPred, 'output/titanic_prediction.csv', colHeaders=['PassengerId', 'Survived'])
@@ -119,4 +117,4 @@ class TitanicBinaryClassifier:
 
 
 if True:
-    TitanicBinaryClassifier(epoch=100, alpha=0.1, reg=1)
+    TitanicBinaryClassifier(epoch=100, alpha=0.544, reg=1)
